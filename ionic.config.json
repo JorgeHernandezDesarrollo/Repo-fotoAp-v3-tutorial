@@ -1,0 +1,7 @@
+{
+  "name": "fotoAp-v3-tutorial",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
