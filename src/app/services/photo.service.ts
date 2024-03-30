@@ -6,6 +6,7 @@ import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Preferences } from '@capacitor/preferences';
 
 import {Platform} from '@ionic/angular';
+import {Capacitor} from '@capacitor/core';
 //Fin de añadido por Jorge
 
 @Injectable({
@@ -54,6 +55,15 @@ export class PhotoService {
       data: base64Data,
       directory: Directory.Data
     });
+
+    if (this.platform.is('hybrid')) {
+      //Mostrar la nueva imagen reescribiendo la ruta 'file://' a HTTP
+      //Detalles: https://ionicframework.com/docs/building/webview#file-protocol
+      return {
+        filepath: savedFile.uri,
+        webviewPath: Capacitor.convertFileSrc(savedFile.uri),
+      };
+    }
     //Usar webPath para mostrar la nueva imagen en lugar de base64, ya que ya está cargada en memoria
     return {
       filepath:fileName,
@@ -61,11 +71,22 @@ export class PhotoService {
     };    
   }
   private async readAsBase64(photo: Photo){
-    //Buscar la foto, leerla en bruto, entonces convertirla a formato base64
-    const response = await fetch(photo.webPath!);
-    const blob = await response.blob();
+    //"hybrid" detectará Cordova o Capacitor
+    if (this.platform.is('hybrid')) {
+      //Leer el fichero al formato base64
+      const file = await Filesystem.readFile({
+        path: photo.path!
+      });
+      return file.data;
+    }
+    else {
 
-    return await this.convertBlobToBase64(blob) as string;
+      //Buscar la foto, leerla en bruto, entonces convertirla a formato base64
+      const response = await fetch(photo.webPath!);
+      const blob = await response.blob();
+
+      return await this.convertBlobToBase64(blob) as string;
+    }
   }
   private convertBlobToBase64 = (blob: Blob) => new Promise((resolve, reject) => {
       const reader = new FileReader();
