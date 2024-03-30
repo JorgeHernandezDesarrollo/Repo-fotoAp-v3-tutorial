@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+//Añadido por Jorge
+import { PhotoService } from '../services/photo.service';
+//Fin de añadido por Jorge
 
 @Component({
   selector: 'app-tab2',
@@ -7,6 +10,17 @@ import { Component } from '@angular/core';
 })
 export class Tab2Page {
 
-  constructor() {}
+  //constructor() {}
+  //Añadido por Jorge
+  constructor(public photoService: PhotoService) {}
+
+  addPhotoToGallery(){
+    this.photoService.addNewToGallery();
+  }
+
+  async ngOnInit(){
+    await this.photoService.loadSaved();
+  }
+  //Fin de añadido por Jorge
 
 }
