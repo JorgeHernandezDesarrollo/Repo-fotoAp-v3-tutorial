@@ -101,18 +101,24 @@ export class PhotoService {
     //Recuperar los datos cacheados del array de fotos
     const {value} = await Preferences.get({key: this.PHOTO_STORAGE});
     this.photos = (value ? JSON.parse(value) : []) as UserPhoto[];
-    //Mostrar la foto leyendo en formato base64
-    for (let photo of this.photos) {
-      //Leer los datos de cada foto guardada en el sistema de ficheros
-      const readFile = await Filesystem.readFile({
-        path: photo.filepath,
-        directory: Directory.Data,
-      });
-      //Solo para la plataforma web: cargar la foto como datos base64
-      photo.webviewPath = `data:image/jpeg;base64,${readFile.data}`;
+
+    //Forma más fácil de detectar cuando se está ejecutando en la web:
+    //"cuando la plataforma no es hybrid, haz esto"
+    if (!this.platform.is('hybrid')) {
+      //Mostrar la foto leyendo en formato base64
+      for (let photo of this.photos) {
+        //Leer los datos de cada foto guardada en el sistema de ficheros
+        const readFile = await Filesystem.readFile({
+          path: photo.filepath,
+          directory: Directory.Data,
+        });
+        //Solo para la plataforma web: cargar la foto como datos base64
+        photo.webviewPath = `data:image/jpeg;base64,${readFile.data}`;
+      }
     }
   }
   //Fin de añadido por Jorge
+
 }
 
 export interface UserPhoto {
