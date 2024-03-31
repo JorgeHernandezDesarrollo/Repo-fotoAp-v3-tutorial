@@ -117,6 +117,24 @@ export class PhotoService {
       }
     }
   }
+
+  public async deletePicture(photo: UserPhoto, position: number) {
+    //Borrar esta foto del array de referencias Photos
+    this.photos.splice(position,1);
+
+    //Actualizar la cache del array de fotos, sobreescribiendo cualquier otro array existente
+    Preferences.set({
+      key: this.PHOTO_STORAGE,
+      value: JSON.stringify(this.photos)
+    });
+
+    //Borrar el fichero de la foto del sistema de ficheros
+    const filename = photo.filepath.substr(photo.filepath.lastIndexOf('/')+1);
+    await Filesystem.deleteFile({
+      path: filename,
+      directory: Directory.Data
+    });
+  }
   //Fin de añadido por Jorge
 
 }
